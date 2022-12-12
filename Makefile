@@ -9,6 +9,7 @@ endif
 
 IMG ?= gcr.io/arrikto-playground/kubeflow/oidc-authservice
 TAG ?= $(GIT_VERSION)
+ARCH ?= linux/amd64 
 
 .EXPORT_ALL_VARIABLES:
 DOCKER_BUILDKIT := 1
@@ -30,6 +31,15 @@ docker-build:
 
 docker-push:
 	docker push $(IMG):$(TAG)
+
+.PHONY: docker-build-multi-arch
+docker-build-multi-arch: ##  Build multi-arch docker images with docker buildx
+	docker buildx build --platform ${ARCH} --tag ${IMG}:${TAG} .
+
+
+.PHONY: docker-build-push-multi-arch
+docker-build-push-multi-arch: ## Build multi-arch docker images with docker buildx and push to docker registry 
+	docker buildx build --platform ${ARCH} --tag ${IMG}:${TAG} --push .
 
 bin/plantuml.jar:
 	mkdir -p bin
